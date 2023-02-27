@@ -1,2 +1,1 @@
-# youdao-translate
-Translate text using Youdao.
+# Youdao Translate
