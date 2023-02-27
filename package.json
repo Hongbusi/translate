@@ -2,16 +2,16 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "youdao-translate",
   "title": "Youdao Translate",
-  "description": "Translate text using Youdao",
-  "icon": "translate.png",
-  "author": "tiancheng92",
+  "description": "Simple translation using Youdao Translate.",
+  "icon": "icon.png",
+  "author": "Hongbusi",
   "license": "MIT",
   "commands": [
     {
       "name": "youdao-translate",
       "title": "Translate",
-      "subtitle": "Youdao",
-      "description": "Translate text using Youdao",
+      "subtitle": "Youdao Translate",
+      "description": "Simple translation using Youdao Translate.",
       "mode": "view"
     }
   ],
