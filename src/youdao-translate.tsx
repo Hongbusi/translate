@@ -1,94 +1,91 @@
-import React, { useEffect, useState } from "react";
+import crypto from 'crypto'
+import React, { useEffect, useState } from 'react'
 import {
   Action,
   ActionPanel,
   Color,
   Detail,
   Form,
-  getPreferenceValues,
-  getSelectedText,
   Icon,
   List,
+  getPreferenceValues,
+  getSelectedText,
   useNavigation,
-} from "@raycast/api";
-import fetch from "node-fetch";
-import crypto from "crypto";
+} from '@raycast/api'
+import fetch from 'node-fetch'
 
 interface translateResult {
-  translation?: Array<string>;
-  isWord: boolean;
-  basic?: { phonetic?: string; explains?: Array<string> };
-  l: string;
-  web?: Array<translateWebResult>;
-  webdict?: { url: string };
-  errorCode: string;
+  translation?: Array<string>
+  isWord: boolean
+  basic?: { phonetic?: string; explains?: Array<string> }
+  l: string
+  web?: Array<translateWebResult>
+  webdict?: { url: string }
+  errorCode: string
 }
 
 interface translateWebResult {
-  value: Array<string>;
-  key: string;
+  value: Array<string>
+  key: string
 }
 
 interface translateRequest {
-  content: string;
-  from_language: string;
-  to_language: string;
+  content: string
+  from_language: string
+  to_language: string
 }
 
 function generateSign(content: string, salt: number, app_key: string, app_secret: string) {
-  const md5 = crypto.createHash("md5");
-  md5.update(app_key + content + salt + app_secret);
-  const cipher = md5.digest("hex");
-  return cipher.slice(0, 32).toUpperCase();
+  const md5 = crypto.createHash('md5')
+  md5.update(app_key + content + salt + app_secret)
+  const cipher = md5.digest('hex')
+  return cipher.slice(0, 32).toUpperCase()
 }
 
 function handleContent(content: string, handle_annotation: boolean) {
-  const annotations = ["///", "//!", "/*", "*/", "//"];
+  const annotations = ['///', '//!', '/*', '*/', '//']
   if (handle_annotation) {
     for (const annotation of annotations) {
-      while (content.includes(annotation)) {
-        content = content.replace(annotation, "");
-      }
+      while (content.includes(annotation))
+        content = content.replace(annotation, '')
     }
   }
 
-  while (content.includes("\r")) {
-    content = content.replace("\r", "");
-  }
+  while (content.includes('\r'))
+    content = content.replace('\r', '')
 
-  const contentList = content.split("\n");
+  const contentList = content.split('\n')
   for (const i in contentList) {
-    contentList[i] = contentList[i].trim();
-    if (contentList[i] == "") {
-      contentList[i] = "\n\n";
-    }
+    contentList[i] = contentList[i].trim()
+    if (contentList[i] == '')
+      contentList[i] = '\n\n'
   }
-  content = contentList.join(" ");
-  return content;
+  content = contentList.join(' ')
+  return content
 }
 
 function translateAPI(content: string, from_language: string, to_language: string) {
-  const { app_key, app_secret, handle_annotation } = getPreferenceValues();
-  const q = Buffer.from(handleContent(content, handle_annotation)).toString();
-  const salt = Date.now();
-  const sign = generateSign(q, salt, app_key, app_secret);
-  const url = new URL("https://openapi.youdao.com/api");
-  const params = new URLSearchParams();
-  params.append("q", q);
-  params.append("appKey", app_key);
-  params.append("from", from_language);
-  params.append("to", to_language);
-  params.append("salt", String(salt));
-  params.append("sign", sign);
-  url.search = params.toString();
+  const { app_key, app_secret, handle_annotation } = getPreferenceValues()
+  const q = Buffer.from(handleContent(content, handle_annotation)).toString()
+  const salt = Date.now()
+  const sign = generateSign(q, salt, app_key, app_secret)
+  const url = new URL('https://openapi.youdao.com/api')
+  const params = new URLSearchParams()
+  params.append('q', q)
+  params.append('appKey', app_key)
+  params.append('from', from_language)
+  params.append('to', to_language)
+  params.append('salt', String(salt))
+  params.append('sign', sign)
+  url.search = params.toString()
   return fetch(url.toString(), {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
 function LanguageFormDDropdown(props: { id: string; title: string }) {
-  const { id, title } = props;
+  const { id, title } = props
 
   return (
     <Form.Dropdown id={id} title={title} defaultValue="auto">
@@ -209,24 +206,24 @@ function LanguageFormDDropdown(props: { id: string; title: string }) {
         <Form.Dropdown.Item title="Bai Hmong" value="mww" />
       </Form.Dropdown.Section>
     </Form.Dropdown>
-  );
+  )
 }
 
 function TranslateResultActionPanel(props: { copy_content: string; url: string | undefined }) {
-  const { copy_content, url } = props;
+  const { copy_content, url } = props
   return (
     <ActionPanel>
       <Action.CopyToClipboard content={copy_content} />
       {url ? <Action.OpenInBrowser url={url} /> : null}
     </ActionPanel>
-  );
+  )
 }
 
 function ErrorMessage(props: { error_message: string }) {
-  const { error_message } = props;
+  const { error_message } = props
   const errorMessage = `### ERROR
-${error_message}`;
-  const { pop } = useNavigation();
+${error_message}`
+  const { pop } = useNavigation()
   return (
     <Detail
       markdown={errorMessage}
@@ -236,44 +233,45 @@ ${error_message}`;
         </ActionPanel>
       }
     />
-  );
+  )
 }
 
 function Translate(props: { content: string | undefined; from_language: string; to_language: string }) {
   const [translate_result, set_translate_result] = useState<translateResult>({
     basic: {},
     isWord: false,
-    l: "",
+    l: '',
     translation: undefined,
     web: undefined,
-    webdict: { url: "" },
-    errorCode: "",
-  });
+    webdict: { url: '' },
+    errorCode: '',
+  })
 
-  const { content, from_language, to_language } = props;
+  const { content, from_language, to_language } = props
 
-  if (content === "" || content === undefined) {
+  if (content === '' || content === undefined) {
     const errorMessage = `
-* Content can not be blank`;
-    return <ErrorMessage error_message={errorMessage} />;
+* Content can not be blank`
+    return <ErrorMessage error_message={errorMessage} />
   }
   useEffect(() => {
     (async () => {
-      const response = await translateAPI(content, from_language, to_language);
-      set_translate_result((await response.json()) as translateResult);
-    })();
-  }, []);
+      const response = await translateAPI(content, from_language, to_language)
+      set_translate_result((await response.json()) as translateResult)
+    })()
+  }, [])
 
-  if (translate_result && translate_result.errorCode && translate_result.errorCode !== "0") {
+  if (translate_result && translate_result.errorCode && translate_result.errorCode !== '0') {
     const errorMessage = `
 * error code: ${translate_result.errorCode}.
-* you can find all error code in here. (https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html)`;
-    return <ErrorMessage error_message={errorMessage} />;
+* you can find all error code in here. (https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html)`
+    return <ErrorMessage error_message={errorMessage} />
   }
-  if (content.split(" ").length == 1) {
+  if (content.split(' ').length == 1) {
     return (
-      <List isLoading={translate_result.errorCode === "" && translate_result.isWord}>
-        {translate_result.translation ? (
+      <List isLoading={translate_result.errorCode === '' && translate_result.isWord}>
+        {translate_result.translation
+          ? (
           <List.Section title="Translate">
             {translate_result.translation.map((item: string, index: number) => (
               <List.Item
@@ -293,8 +291,10 @@ function Translate(props: { content: string | undefined; from_language: string; 
               />
             ))}
           </List.Section>
-        ) : null}
-        {translate_result.basic && translate_result.basic.explains && translate_result.basic.explains.length > 0 ? (
+            )
+          : null}
+        {translate_result.basic && translate_result.basic.explains && translate_result.basic.explains.length > 0
+          ? (
           <List.Section title="Detail">
             {translate_result.basic.explains.map((item: string, index: number) => (
               <List.Item
@@ -314,18 +314,20 @@ function Translate(props: { content: string | undefined; from_language: string; 
               />
             ))}
           </List.Section>
-        ) : null}
-        {translate_result.web && translate_result.web.length > 0 ? (
+            )
+          : null}
+        {translate_result.web && translate_result.web.length > 0
+          ? (
           <List.Section title="Web Translate">
             {translate_result.web.map((item: translateWebResult, index: number) => (
               <List.Item
                 key={index}
-                title={item.value.join(", ")}
+                title={item.value.join(', ')}
                 icon={{ source: Icon.Dot, tintColor: Color.Yellow }}
                 subtitle={item.key}
                 actions={
                   <TranslateResultActionPanel
-                    copy_content={item.value.join(", ")}
+                    copy_content={item.value.join(', ')}
                     url={
                       translate_result.webdict && translate_result.webdict.url
                         ? translate_result.webdict.url
@@ -336,17 +338,19 @@ function Translate(props: { content: string | undefined; from_language: string; 
               />
             ))}
           </List.Section>
-        ) : null}
+            )
+          : null}
       </List>
-    );
-  } else {
-    let result = "";
+    )
+  }
+  else {
+    let result = ''
     translate_result.translation?.forEach((value) => {
-      result += `${value}`;
-    });
+      result += `${value}`
+    })
     return (
       <Detail
-        isLoading={translate_result.errorCode === "" && !translate_result.isWord}
+        isLoading={translate_result.errorCode === '' && !translate_result.isWord}
         markdown={result}
         actions={
           <TranslateResultActionPanel
@@ -355,23 +359,24 @@ function Translate(props: { content: string | undefined; from_language: string; 
           />
         }
       />
-    );
+    )
   }
 }
 
 export default function Main() {
-  const { push } = useNavigation();
-  const [select, set_select] = useState<string>();
+  const { push } = useNavigation()
+  const [select, set_select] = useState<string>()
   useEffect(() => {
     (async () => {
       try {
-        const selected_text = await getSelectedText();
-        set_select(selected_text);
-      } catch (e) {
-        set_select("");
+        const selected_text = await getSelectedText()
+        set_select(selected_text)
       }
-    })();
-  }, []);
+      catch (e) {
+        set_select('')
+      }
+    })()
+  }, [])
   return (
     <Form
       actions={
@@ -384,17 +389,17 @@ export default function Main() {
                   content={input.content || select}
                   to_language={input.to_language}
                   from_language={input.from_language}
-                />
-              );
+                />,
+              )
             }}
           />
         </ActionPanel>
       }
     >
-      <Form.TextArea title="Content" id="content" placeholder={select !== "" ? select : "Text to translate"} />
+      <Form.TextArea title="Content" id="content" placeholder={select !== '' ? select : 'Text to translate'} />
       <Form.Separator />
       <LanguageFormDDropdown id="from_language" title="From" />
       <LanguageFormDDropdown id="to_language" title="To" />
     </Form>
-  );
+  )
 }
