@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import fetch from "node-fetch";
 import { Action, ActionPanel, Color, Icon, List, getPreferenceValues } from "@raycast/api";
 
@@ -16,6 +16,11 @@ interface translateResult {
   web?: Array<translateWebResult>;
   webdict?: { url: string };
   errorCode: string;
+}
+
+
+function getTranslateUrl(params: { q: string, appKey: string, from: string, to: string, salt: string, sign: string }) {
+  return `https://openapi.youdao.com/api?${new URLSearchParams(params).toString()}`
 }
 
 function generateSign(content: string, salt: number, app_key: string, app_secret: string) {
@@ -49,16 +54,17 @@ function translateAPI(content: string, from_language: string, to_language: strin
   const q = Buffer.from(handleContent(content, handle_annotation)).toString();
   const salt = Date.now();
   const sign = generateSign(q, salt, app_key, app_secret);
-  const url = new URL("https://openapi.youdao.com/api");
-  const params = new URLSearchParams();
-  params.append("q", q);
-  params.append("appKey", app_key);
-  params.append("from", from_language);
-  params.append("to", to_language);
-  params.append("salt", String(salt));
-  params.append("sign", sign);
-  url.search = params.toString();
-  return fetch(url.toString(), {
+
+  const url = getTranslateUrl({
+    q,
+    appKey: app_key,
+    from: from_language,
+    to: to_language,
+    salt: String(salt),
+    sign
+  })
+
+  return fetch(url, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
@@ -74,30 +80,36 @@ function TranslateResultActionPanel(props: { copyContent: string; url: string | 
   );
 }
 
+const defaultTranslateResult: translateResult = {
+  basic: {},
+  isWord: false,
+  l: "",
+  translation: undefined,
+  web: undefined,
+  webdict: { url: "" },
+  errorCode: "",
+}
+
 export default function Command() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setLoadingStatus] = useState(false);
   const [toTranslate, setToTranslate] = useState("");
-  const [translateResult, setTranslateResult] = useState<translateResult>({
-    basic: {},
-    isWord: false,
-    l: "",
-    translation: undefined,
-    web: undefined,
-    webdict: { url: "" },
-    errorCode: "",
-  });
+  const [{ basic, translation, web, webdict }, setTranslateResult] = useState(defaultTranslateResult);
 
   useEffect(() => {
     if (toTranslate === "") return;
 
-    setIsLoading(true);
+    setLoadingStatus(true);
 
     (async () => {
       const response = await translateAPI(toTranslate, "auto", "auto");
-      setTranslateResult((await response.json()) as translateResult);
-      setIsLoading(false);
+      setTranslateResult((await response.json()) as translateResult || {});
+      setLoadingStatus(false);
     })();
   }, [toTranslate]);
+
+  const actionPanelUrl = useMemo(() => {
+    return webdict?.url || ""
+  }, [webdict?.url])
 
   return (
     <List
@@ -106,52 +118,50 @@ export default function Command() {
       isLoading={isLoading}
       throttle
     >
-      {translateResult.translation
-        ? translateResult.translation.map((item: string, index: number) => (
-            <List.Item
-              key={index}
-              title={item}
-              icon={{ source: Icon.Dot, tintColor: Color.Red }}
-              actions={
-                <TranslateResultActionPanel
-                  copyContent={item}
-                  url={translateResult.webdict && translateResult.webdict.url ? translateResult.webdict.url : undefined}
-                />
-              }
+      {translation?.map((item: string, index: number) => (
+        <List.Item
+          key={index}
+          title={item}
+          icon={{ source: Icon.Dot, tintColor: Color.Red }}
+          actions={
+            <TranslateResultActionPanel
+              copyContent={item}
+              url={actionPanelUrl}
             />
-          ))
-        : null}
-      {translateResult.basic && translateResult.basic.explains && translateResult.basic.explains.length > 0
-        ? translateResult.basic.explains.map((item: string, index: number) => (
-            <List.Item
-              key={index}
-              title={item}
-              icon={{ source: Icon.Dot, tintColor: Color.Blue }}
-              actions={
-                <TranslateResultActionPanel
-                  copyContent={item}
-                  url={translateResult.webdict && translateResult.webdict.url ? translateResult.webdict.url : undefined}
-                />
-              }
+          }
+        />
+      ))
+      }
+      {basic?.explains?.map((item: string, index: number) => (
+        <List.Item
+          key={index}
+          title={item}
+          icon={{ source: Icon.Dot, tintColor: Color.Blue }}
+          actions={
+            <TranslateResultActionPanel
+              copyContent={item}
+              url={actionPanelUrl}
             />
-          ))
-        : null}
-      {translateResult.web && translateResult.web.length > 0
-        ? translateResult.web.map((item: translateWebResult, index: number) => (
-            <List.Item
-              key={index}
-              title={item.value.join(", ")}
-              icon={{ source: Icon.Dot, tintColor: Color.Yellow }}
-              subtitle={item.key}
-              actions={
-                <TranslateResultActionPanel
-                  copyContent={item.value.join(", ")}
-                  url={translateResult.webdict && translateResult.webdict.url ? translateResult.webdict.url : undefined}
-                />
-              }
+          }
+        />
+      ))
+      }
+      {web?.map((item: translateWebResult, index: number) => (
+        <List.Item
+          key={index}
+          title={item.value.join(", ")}
+          icon={{ source: Icon.Dot, tintColor: Color.Yellow }}
+          subtitle={item.key}
+          actions={
+            <TranslateResultActionPanel
+              copyContent={item.value.join(", ")}
+              url={actionPanelUrl}
             />
-          ))
-        : null}
+          }
+        />
+      ))
+      }
+
     </List>
   );
 }
