@@ -1,36 +1,49 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "youdao",
-  "title": "Youdao",
-  "description": "Simple translation using Youdao Translate.",
+  "name": "translate",
+  "title": "Translate",
+  "description": "Simple translation using Translate.",
   "author": "Hongbusi",
   "license": "MIT",
   "icon": "icon.png",
   "commands": [
     {
-      "name": "youdao-translate",
+      "name": "translate",
       "title": "Translate",
-      "subtitle": "Youdao Translate",
-      "description": "Simple translation using Youdao Translate.",
+      "subtitle": "Translate",
+      "description": "Simple translation using Translate.",
       "mode": "view"
     }
   ],
   "preferences": [
     {
+      "name": "platform",
+      "type": "dropdown",
+      "required": true,
+      "title": "Platform",
+      "default": "",
+      "data": [
+        { "title": "Youdao", "value": "youdao" },
+        { "title": "Deepl", "value": "deepl" }
+      ],
+      "description": "Please select a platform",
+      "placeholder": "Please select a platform"
+    },
+    {
       "name": "app_key",
       "type": "textfield",
       "required": true,
       "title": "APP Key",
-      "description": "You can get Youdao Translate APP code at https://ai.youdao.com/console/",
-      "placeholder": "Youdao Translate APP code"
+      "description": "Youdao/Deepl Translate APP code",
+      "placeholder": "Youdao/Deepl Translate APP code"
     },
     {
       "name": "app_secret",
       "type": "password",
       "required": true,
       "title": "APP Secret",
-      "description": "You can get Youdao Translate APP secret at https://ai.youdao.com/console/",
-      "placeholder": "Youdao Translate APP Secret"
+      "description": "Youdao/Deepl Translate APP Secret",
+      "placeholder": "Youdao/Deepl Translate APP Secret"
     },
     {
       "name": "handle_annotation",
