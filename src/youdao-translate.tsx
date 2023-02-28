@@ -97,7 +97,7 @@ export default function Command() {
     setIsLoading(true);
 
     (async () => {
-      const response = await translateAPI(toTranslate, 'zh-CHS', 'en')
+      const response = await translateAPI(toTranslate, 'auto', 'auto')
       setTranslateResult(await response.json() as translateResult)
       setIsLoading(false)
     })()
