@@ -42,23 +42,26 @@
       "label": "Allow Handle Annotation"
     }
   ],
-  "scripts": {
-    "dev": "ray develop",
-    "build": "ray build -e dist",
-    "publish": "ray publish",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
-  },
   "dependencies": {
     "@raycast/api": "^1.38.2",
     "node-fetch": "^3.2.9"
   },
   "devDependencies": {
-    "@antfu/eslint-config-react": "^0.35.3",
     "@types/node": "^18.6.1",
     "@types/react": "^18.0.15",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
     "eslint": "^8.35.0",
+    "eslint-config-prettier": "^8.6.0",
+    "prettier": "^2.8.4",
     "react-devtools": "^4.25.0",
     "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "ray publish"
   }
 }
