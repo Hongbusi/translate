@@ -118,7 +118,7 @@ export default function Command() {
       isLoading={isLoading}
       throttle
     >
-      {translation?.map((item: string, index: number) => (
+      {translation?.map((item, index) => (
         <List.Item
           key={index}
           title={item}
@@ -132,7 +132,7 @@ export default function Command() {
         />
       ))
       }
-      {basic?.explains?.map((item: string, index: number) => (
+      {basic?.explains?.map((item, index) => (
         <List.Item
           key={index}
           title={item}
@@ -146,7 +146,7 @@ export default function Command() {
         />
       ))
       }
-      {web?.map((item: translateWebResult, index: number) => (
+      {web?.map((item, index) => (
         <List.Item
           key={index}
           title={item.value.join(", ")}
