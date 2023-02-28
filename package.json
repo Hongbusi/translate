@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "youdao-translate",
+  "name": "youdao",
   "title": "Youdao",
   "description": "Simple translation using Youdao Translate.",
   "author": "Hongbusi",
