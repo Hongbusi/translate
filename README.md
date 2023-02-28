@@ -1,4 +1,4 @@
-# Youdao Translate
+# Translate
 
 Raycast Youdao Translate extension.
 
@@ -19,9 +19,9 @@ And, enjoy :)
 
 ## Interface
 
-![Youdao Translate Interface 1](./metadata/youdao-translate-1.png)
-![Youdao Translate Interface 2](./metadata/youdao-translate-2.png)
-![Youdao Translate Interface 3](./metadata/youdao-translate-3.png)
+![Translate Interface 1](./metadata/translate-1.png)
+![Translate Interface 2](./metadata/translate-2.png)
+![Translate Interface 3](./metadata/translate-3.png)
 
 ## Special Thanks
 

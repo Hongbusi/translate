@@ -17,33 +17,20 @@
   ],
   "preferences": [
     {
-      "name": "platform",
-      "type": "dropdown",
-      "required": true,
-      "title": "Platform",
-      "default": "",
-      "data": [
-        { "title": "Youdao", "value": "youdao" },
-        { "title": "Deepl", "value": "deepl" }
-      ],
-      "description": "Please select a platform",
-      "placeholder": "Please select a platform"
-    },
-    {
       "name": "app_key",
       "type": "textfield",
       "required": true,
       "title": "APP Key",
-      "description": "Youdao/Deepl Translate APP code",
-      "placeholder": "Youdao/Deepl Translate APP code"
+      "description": "You can get Youdao Translate APP code at https://ai.youdao.com/console/",
+      "placeholder": "Youdao Translate APP code"
     },
     {
       "name": "app_secret",
       "type": "password",
       "required": true,
       "title": "APP Secret",
-      "description": "Youdao/Deepl Translate APP Secret",
-      "placeholder": "Youdao/Deepl Translate APP Secret"
+      "description": "You can get Youdao Translate APP secret at https://ai.youdao.com/console/",
+      "placeholder": "Youdao Translate APP Secret"
     },
     {
       "name": "handle_annotation",
