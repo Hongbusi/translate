@@ -2,14 +2,6 @@
 
 Raycast Youdao Translate extension.
 
-## Usage
-
-The current release Raycast Store is under review and can be used locally.
-
-``` bash
-npm run dev
-```
-
 ## Configure
 
 - [Configure Key & Secret](https://github.com/wensonsmith/YoudaoTranslator/wiki/%E8%8E%B7%E5%8F%96%E6%9C%89%E9%81%93%E7%BF%BB%E8%AF%91-Key-%E4%B8%8E-Secret).
